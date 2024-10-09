@@ -7,176 +7,198 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AddressMain {
-    public static Scanner sc = new Scanner(System.in);
+	public static Scanner sc = new Scanner(System.in);
 
-    public static void main(String[] args) {
-        HashMap<String, Address> list = new HashMap<>();
-        boolean exitFlag = false;
+	public static void main(String[] args) {
+		HashMap<String, Address> list = new HashMap<>();
+		boolean exitFlag = false;
 
-        while (!exitFlag) {
-            showMenu();
-            int menu = sc.nextInt();
-            sc.nextLine();
+		while (!exitFlag) {
+			showMenu();
+			int menu = 0;
+			Pattern pattern = Pattern.compile("^[1-8]$");
+			String userInput = sc.nextLine();
+			Matcher matcher = pattern.matcher(userInput);
+			if (!(matcher.find())) {
+				System.out.println("1~8 사이만 입력해주세요.");
+				continue;
+			}
+			try {
+				menu = Integer.parseInt(userInput);
+			} catch (Exception e) {
+				System.out.println("입력을 잘 해주세요.");
+				continue;
+			}
 
-            switch (menu) {
-                case Menu.INPUT:
-                    int type = inputType();
-                    insertAddress(list, type);
-                    break;
-                case Menu.SEARCH:
-                    System.out.print("찾을 사람의 우편번호를 입력하세요: ");
-                    String zipcodeToSearch = sc.nextLine();
-                    Address addr = searchAddress(list, zipcodeToSearch);
-                    System.out.println((addr != null) ? (addr) : ("찾는 우편번호가 없습니다."));
-                    break;
-                case Menu.DELETE:
-                    System.out.print("삭제할 우편번호를 입력하세요: ");
-                    String zipcodeToDelete = sc.nextLine();
-                    boolean deleteFlag = deleteAddress(list, zipcodeToDelete);
-                    System.out.println((deleteFlag) ? ("삭제 성공") : ("삭제 실패: 우편번호 확인 필요"));
-                    break;
-                case Menu.UPDATE:
-                    System.out.print("수정할 우편번호를 입력하세요: ");
-                    String zipcodeToUpdate = sc.nextLine();
-                    updateData(list, zipcodeToUpdate);
-                    break;
-                case Menu.PRINT:
-                    printAddress(list);
-                    break;
-                case Menu.SORT:
-                    sortAddress(list);
-                    break;
-                case Menu.REVERSESORT:
-                    reverseSortAddress(list);
-                    break;
-                case Menu.EXIT:
-                    System.out.println("프로그램 종료");
-                    exitFlag = true;
-                    break;
-                default:
-                    break;
-            }
-        }
-        System.out.println("프로그램 종료");
-    }
+			switch (menu) {
+			case Menu.INPUT:
+				int type = inputType();
+				insertAddress(list, type);
+				break;
+			case Menu.SEARCH:
+				System.out.print("찾을 사람의 우편번호를 입력하세요: ");
+				String zipcodeToSearch = sc.nextLine();
+				Address addr = searchAddress(list, zipcodeToSearch);
+				System.out.println((addr != null) ? (addr) : ("찾는 우편번호가 없습니다."));
+				break;
+			case Menu.DELETE:
+				System.out.print("삭제할 우편번호를 입력하세요: ");
+				String zipcodeToDelete = sc.nextLine();
+				boolean deleteFlag = deleteAddress(list, zipcodeToDelete);
+				System.out.println((deleteFlag) ? ("삭제 성공") : ("삭제 실패: 우편번호 확인 필요"));
+				break;
+			case Menu.UPDATE:
+				System.out.print("수정할 우편번호를 입력하세요: ");
+				String zipcodeToUpdate = sc.nextLine();
+				updateData(list, zipcodeToUpdate);
+				break;
+			case Menu.PRINT:
+				printAddress(list);
+				break;
+			case Menu.SORT:
+				sortAddress(list);
+				break;
+			case Menu.REVERSESORT:
+				reverseSortAddress(list);
+				break;
+			case Menu.EXIT:
+				System.out.println("프로그램 종료");
+				exitFlag = true;
+				break;
+			default:
+				break;
+			}
+		}
+		System.out.println("프로그램 종료");
+	}
 
-    public static void showMenu() {
-        System.out.println("고객의 배송지 설정_Set");
-        System.out.println("1. 주소 입력");
-        System.out.println("2. 주소 검색");
-        System.out.println("3. 주소 삭제");
-        System.out.println("4. 주소 수정");
-        System.out.println("5. 주소 출력");
-        System.out.println("6. 주소 정렬");
-        System.out.println("7. 주소 역정렬");
-        System.out.println("8. 프로그램 종료");
-        System.out.print("선택: ");
-    }
+	public static void showMenu() {
+		System.out.println("고객의 배송지 설정_Map");
+		System.out.println("1. 주소 입력");
+		System.out.println("2. 주소 검색");
+		System.out.println("3. 주소 삭제");
+		System.out.println("4. 주소 수정");
+		System.out.println("5. 주소 출력");
+		System.out.println("6. 주소 정렬");
+		System.out.println("7. 주소 역정렬");
+		System.out.println("8. 프로그램 종료");
+		System.out.print("선택: ");
+	}
 
-    public static int inputType() {
-        System.out.println("1. 일반 주소, 2. 회사 주소");
-        System.out.print("선택: ");
-        return sc.nextInt();
-    }
+	public static int inputType() {
+		System.out.println("1. 일반 주소, 2. 회사 주소");
+		System.out.print("선택: ");
+		String input = sc.nextLine();
+		try {
+			int type = Integer.parseInt(input);
+			if (type < 1 || type > 2) {
+				throw new IllegalArgumentException("1 또는 2만 입력 가능합니다.");
+			}
+			return type;
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("숫자만 입력 가능합니다.", e);
+		}
+	}
 
-    public static void insertAddress(HashMap<String, Address> list, int type) {
-        String name = makeName();
-        String city = makeCity();
-        String detailedAddress = makeDetailedAddress();
-        String zipcode = makeZipcode();
-        String companyName = makeCompanyName();
-        
-        switch (type) {
-            case 1:
-                Address address = new Address(name, city, detailedAddress, zipcode);
-                if (list.put(zipcode, address) != null) {
-                    System.out.println("이미 존재하는 우편번호입니다.");
-                }
-                System.out.println(address);
-                break;
-            case 2:
-                CompanyAddress companyAddress = new CompanyAddress(name, city, detailedAddress, zipcode, companyName);
-                if (list.put(zipcode, companyAddress) != null) {
-                    System.out.println("이미 존재하는 우편번호입니다.");
-                }
-                System.out.println(companyAddress);
-                break;
-        }
-    }
+	public static void insertAddress(HashMap<String, Address> list, int type) {
+		String name = makeName();
+		String city = makeCity();
+		String detailedAddress = makeDetailedAddress();
+		String zipcode = makeZipcode();
+		String companyName = makeCompanyName();
 
-    public static Address searchAddress(HashMap<String, Address> list, String zipcode) {
-        return list.get(zipcode);
-    }
+		switch (type) {
+		case 1:
+			Address address = new Address(name, city, detailedAddress, zipcode);
+			if (list.put(zipcode, address) != null) {
+				System.out.println("이미 존재하는 우편번호입니다.");
+			}
+			System.out.println(address);
+			break;
+		case 2:
+			CompanyAddress companyAddress = new CompanyAddress(name, city, detailedAddress, zipcode, companyName);
+			if (list.put(zipcode, companyAddress) != null) {
+				System.out.println("이미 존재하는 우편번호입니다.");
+			}
+			System.out.println(companyAddress);
+			break;
+		}
+	}
 
-    public static boolean deleteAddress(HashMap<String, Address> list, String zipcode) {
-        return list.remove(zipcode) != null;
-    }
+	public static Address searchAddress(HashMap<String, Address> list, String zipcode) {
+		return list.get(zipcode);
+	}
 
-    public static void updateData(HashMap<String, Address> list, String zipcode) {
-        Address address = list.get(zipcode);
-        if (address != null) {
-            System.out.println("1. 이름");
-            System.out.println("2. 지역");
-            System.out.println("3. 상세 주소");
-            System.out.println("4. 우편번호");
-            System.out.println("수정할 필드를 선택하세요:");
-            int choice = sc.nextInt();
-            sc.nextLine();
+	public static boolean deleteAddress(HashMap<String, Address> list, String zipcode) {
+		return list.remove(zipcode) != null;
+	}
 
-            switch (choice) {
-                case 1:
-                    System.out.print("새로운 이름: ");
-                    address.setName(sc.nextLine());
-                    break;
-                case 2:
-                    System.out.print("새로운 도시: ");
-                    address.setCity(sc.nextLine());
-                    break;
-                case 3:
-                    System.out.print("새로운 상세 주소: ");
-                    address.setDetailedAddress(sc.nextLine());
-                    break;
-                case 4:
-                    System.out.print("새로운 우편번호: ");
-                    String newZipcode = sc.nextLine();
-                    list.remove(zipcode);
-                    address.setZipcode(newZipcode);
-                    list.put(newZipcode, address);
-                    break;
-                default:
-                    System.out.println("잘못된 선택입니다.");
-            }
-            System.out.println("주소 수정 완료: " + address);
-        } else {
-            System.out.println("해당 우편번호로 등록된 주소가 없습니다.");
-        }
-    }
+	public static void updateData(HashMap<String, Address> list, String zipcode) {
+		Address address = list.get(zipcode);
+		if (address != null) {
+			System.out.println("1. 이름");
+			System.out.println("2. 지역");
+			System.out.println("3. 상세 주소");
+			System.out.println("4. 우편번호");
+			System.out.println("수정할 필드를 선택하세요:");
+			int choice = Integer.parseInt(sc.nextLine());
 
-    public static void printAddress(HashMap<String, Address> addressList) {
-        Set<String> keys = addressList.keySet();
-        for (String key : keys) {
-            System.out.println(addressList.get(key));
-        }
-    }
+			switch (choice) {
+			case 1:
+				System.out.print("새로운 이름: ");
+				address.setName(sc.nextLine());
+				break;
+			case 2:
+				System.out.print("새로운 도시: ");
+				address.setCity(sc.nextLine());
+				break;
+			case 3:
+				System.out.print("새로운 상세 주소: ");
+				address.setDetailedAddress(sc.nextLine());
+				break;
+			case 4:
+				System.out.print("새로운 우편번호: ");
+				String newZipcode = sc.nextLine();
+				list.remove(zipcode);
+				address.setZipcode(newZipcode);
+				list.put(newZipcode, address);
+				break;
+			default:
+				throw new IllegalArgumentException("1부터 4 사이의 숫자만 입력 가능합니다.");
+			}
+			System.out.println("주소 수정 완료: " + address);
+		} else {
+			System.out.println("해당 우편번호로 등록된 주소가 없습니다.");
+		}
+	}
 
-    public static void sortAddress(HashMap<String, Address> list) {
-        List<Address> arrayList = new ArrayList<>(list.values());
-        Collections.sort(arrayList);
-        for (Address data : arrayList) {
-            System.out.println(data);
-        }
-    }
+	public static void printAddress(HashMap<String, Address> addressList) {
+		Set<String> keys = addressList.keySet();
+		for (String key : keys) {
+			System.out.println(addressList.get(key));
+		}
+	}
 
-    public static void reverseSortAddress(HashMap<String, Address> list) {
-        List<Address> arrayList = new ArrayList<>(list.values());
-        Collections.sort(arrayList, (a1, a2) -> a2.getZipcode().compareTo(a1.getZipcode()));
-        for (Address data : arrayList) {
-            System.out.println(data);
-        }
-    }
-    
+	public static void sortAddress(HashMap<String, Address> list) {
+		List<Address> arrayList = new ArrayList<>(list.values());
+		Collections.sort(arrayList);
+		for (Address data : arrayList) {
+			System.out.println(data);
+		}
+	}
+
+	public static void reverseSortAddress(HashMap<String, Address> list) {
+		List<Address> arrayList = new ArrayList<>(list.values());
+		Collections.sort(arrayList, (a1, a2) -> a2.getZipcode().compareTo(a1.getZipcode()));
+		for (Address data : arrayList) {
+			System.out.println(data);
+		}
+	}
+
 	public static String makeName() {
 		List<String> 성 = Arrays.asList("김", "이", "박", "최", "정", "강", "조", "윤", "장", "임", "한", "오", "서", "신", "권", "황",
 				"안", "송", "류", "전", "홍", "고", "문", "양", "손", "배", "조", "백", "허", "유", "남", "심", "노", "정", "하", "곽", "성",
